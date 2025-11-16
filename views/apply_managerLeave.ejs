@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apply for Leave - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Apply for Leave</h2>
+          <p class="page-subtitle">Submit a new leave request</p>
+        </div>
+
+        <div class="form-container">
+          <form
+            class="leave-form"
+            id="applyLeaveForm"
+            onsubmit="handleApplyManagerLeave(event)"
+          >
+            <div class="form-group">
+              <label for="leaveType"
+                >Leave Type <span class="required">*</span></label
+              >
+              <select id="leaveType" name="leaveType" required>
+                <option value="">Select leave type</option>
+
+                <% if (leaveTypes && leaveTypes.length > 0) { %> <%
+                leaveTypes.forEach(type => { %>
+                <option value="<%= type.id %>"><%= type.type_name %></option>
+                <% }) %> <% } else { %>
+                <option disabled>No leave types available</option>
+                <% } %>
+              </select>
+              <span class="error-message" id="leaveTypeError"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="fromDate"
+                  >From Date <span class="required">*</span></label
+                >
+                <input type="date" id="fromDate" name="fromDate" required />
+                <span class="error-message" id="fromDateError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="toDate"
+                  >To Date <span class="required">*</span></label
+                >
+                <input type="date" id="toDate" name="toDate" required />
+                <span class="error-message" id="toDateError"></span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reason"
+                >Reason for Leave <span class="required">*</span></label
+              >
+              <textarea
+                id="reason"
+                name="reason"
+                placeholder="Please provide a reason for your leave request"
+                rows="5"
+                required
+              ></textarea>
+              <span class="error-message" id="reasonError"></span>
+            </div>
+
+            <div class="form-info">
+              <p>
+                <strong>Days Requested:</strong>
+                <span id="daysCount">0</span> days
+              </p>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="window.history.back()"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-primary">
+                Submit Leave Request
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>
