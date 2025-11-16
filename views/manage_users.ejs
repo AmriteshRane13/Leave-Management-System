@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Employees - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Manage Employees</h2>
+          <p class="page-subtitle">
+            View, edit, and manage all employees in the system
+          </p>
+        </div>
+
+        <!-- Add Employee Button -->
+        <div class="actions-section" style="margin-bottom: 20px">
+          <button class="btn btn-primary" onclick="openAddEmployeeModal()">
+            ➕ Add New Employee
+          </button>
+        </div>
+
+        <!-- Employees Table -->
+        <% if (employees && employees.length > 0) { %>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Manager</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% employees.forEach(employee => { %>
+              <tr>
+                <td><strong>#<%= employee.id %></strong></td>
+                <td><%= employee.name %></td>
+                <td><%= employee.email %></td>
+                <td>
+                  <span
+                    class="status-badge"
+                    style="
+                      background-color: #dbeafe;
+                      color: #1e40af;
+                      text-transform: capitalize;
+                    "
+                  >
+                    <%= employee.role %>
+                  </span>
+                </td>
+                <td><%= employee.department || 'N/A' %></td>
+                <td><%= employee.manager_name || 'No Manager' %></td>
+                <td>
+                  <button
+                    class="btn btn-sm btn-primary"
+                    onclick="openEditEmployeeModal('<%- JSON.stringify(employee) %>')"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="btn btn-sm btn-danger"
+                    onclick="deleteEmployee('<%= employee.id %>')"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div
+          class="empty-state-container"
+          style="text-align: center; padding: 40px"
+        >
+          <p class="empty-state">No employees found</p>
+          <button
+            class="btn btn-primary"
+            onclick="openAddEmployeeModal()"
+            style="margin-top: 15px"
+          >
+            Add First Employee
+          </button>
+        </div>
+        <% }; %>
+      </div>
+    </main>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add New Employee</h3>
+          <button class="modal-close" onclick="closeAddEmployeeModal()">
+            &times;
+          </button>
+        </div>
+        <form class="modal-form" onsubmit="handleAddEmployee(event)">
+          <div class="form-group">
+            <label for="empName"
+              >Full Name <span style="color: red">*</span></label
+            >
+            <input
+              type="text"
+              id="empName"
+              name="name"
+              placeholder="Enter employee full name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="empEmail"
+              >Email Address <span style="color: red">*</span></label
+            >
+            <input
+              type="email"
+              id="empEmail"
+              name="email"
+              placeholder="employee@company.com"
+              required
+            />
+            <span class="error-message" id="empEmailError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="empPassword"
+              >Password <span style="color: red">*</span></label
+            >
+            <input
+              type="password"
+              id="empPassword"
+              name="password"
+              placeholder="Temporary password"
+              required
+            />
+            <small style="color: #6b7280; font-size: 12px"
+              >Employee can change this after first login</small
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="empRole">Role <span style="color: red">*</span></label>
+            <select id="empRole" name="role" required>
+              <option value="">Select Role</option>
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="hr">HR</option>
+            </select>
+            <span class="error-message" id="empRoleError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="empDepartment">Department</label>
+            <input
+              type="text"
+              id="empDepartment"
+              name="department"
+              placeholder="e.g., IT, Marketing, Sales"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="empDesignation">Designation</label>
+            <input
+              type="text"
+              id="empDesignation"
+              name="designation"
+              placeholder="e.g., Software Engineer, Manager"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="empManagerId">Manager (Optional)</label>
+            <select id="empManagerId" name="manager_id">
+              <option value="">No Manager</option>
+              <% if (managers && managers.length > 0) { %> <%
+              managers.forEach(manager => { %>
+              <option value="<%= manager.id %>">
+                <%= manager.name %><%= manager.department ? ' - ' +
+                manager.department : '' %>
+              </option>
+              <% }); %> <% } %>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeAddEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Add Employee</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Employee</h3>
+          <button class="modal-close" onclick="closeEditEmployeeModal()">
+            &times;
+          </button>
+        </div>
+        <form class="modal-form" onsubmit="handleEditEmployee(event)">
+          <input type="hidden" id="editEmpId" name="id" />
+
+          <div class="form-group">
+            <label for="editEmpName"
+              >Full Name <span style="color: red">*</span></label
+            >
+            <input type="text" id="editEmpName" name="name" required />
+            <span class="error-message" id="editEmpNameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="editEmpEmail"
+              >Email <span style="color: red">*</span></label
+            >
+            <input type="email" id="editEmpEmail" name="email" required />
+            <span class="error-message" id="editEmpEmailError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="editEmpRole"
+              >Role <span style="color: red">*</span></label
+            >
+            <select id="editEmpRole" name="role" required>
+              <option value="">Select Role</option>
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="hr">HR</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editEmpDepartment">Department</label>
+            <input type="text" id="editEmpDepartment" name="department" />
+          </div>
+
+          <div class="form-group">
+            <label for="editEmpDesignation">Designation</label>
+            <input type="text" id="editEmpDesignation" name="designation" />
+          </div>
+
+          <div class="form-group">
+            <label for="editEmpManagerId">Manager (Optional)</label>
+            <select id="editEmpManagerId" name="manager_id">
+              <option value="">No Manager</option>
+              <% if (managers && managers.length > 0) { %> <%
+              managers.forEach(manager => { %>
+              <option value="<%= manager.id %>">
+                <%= manager.name %><%= manager.department ? ' - ' +
+                manager.department : '' %>
+              </option>
+              <% }); %> <% } %>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeEditEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>
