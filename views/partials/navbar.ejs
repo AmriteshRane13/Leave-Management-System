@@ -1,0 +1,27 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <ul class="nav-links">
+      <% if (role === 'employee') { %>
+      <li>
+        <a href="/employee/dashboard" class="nav-link">Dashboard</a>
+      </li>
+      <li><a href="/employee/apply-leave" class="nav-link">Apply Leave</a></li>
+      <li><a href="/employee/view-leaves" class="nav-link">My Leaves</a></li>
+      <li><a href="/employee/profile" class="nav-link">My Profile</a></li>
+      <% } else if (role === 'manager') { %>
+      <li>
+        <a href="/manager/dashboard" class="nav-link">Dashboard</a>
+      </li>
+      <li><a href="/manager/apply-leave" class="nav-link">Apply Leave</a></li>
+      <li><a href="/manager/view-leaves" class="nav-link">My Leaves</a></li>
+      <li>
+        <a href="/manager/team" class="nav-link">Team</a>
+      </li>
+      <li><a href="/manager/profile" class="nav-link">My Profile</a></li>
+      <% } else if (role === 'hr') { %>
+      <li><a href="/admin/dashboard" class="nav-link">Dashboard</a></li>
+      <li><a href="/admin/profile" class="nav-link">My Profile</a></li>
+      <% } %>
+    </ul>
+  </div>
+</nav>
