@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>My Profile</h2>
+          <p class="page-subtitle">
+            Manage your personal information and settings
+          </p>
+        </div>
+
+        <!-- Profile Information Card -->
+        <div class="profile-section">
+          <h3>Personal Information</h3>
+          <div class="profile-card">
+            <form id="profileForm" onsubmit="handleManagerUpdateProfile(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="profileName"
+                    >Full Name <span style="color: red">*</span></label
+                  >
+                  <input
+                    type="text"
+                    id="profileName"
+                    name="name"
+                    value="<%= profileUser.name %>"
+                    required
+                  />
+                  <span class="error-message" id="profileNameError"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="profileEmail"
+                    >Email Address <span style="color: red">*</span></label
+                  >
+                  <input
+                    type="email"
+                    id="profileEmail"
+                    name="email"
+                    value="<%= profileUser.email %>"
+                    required
+                  />
+                  <span class="error-message" id="profileEmailError"></span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="profileDepartment">Department</label>
+                  <input
+                    type="text"
+                    id="profileDepartment"
+                    name="department"
+                    value="<%= profileUser.department || '' %>"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="profileDesignation">Designation</label>
+                  <input
+                    type="text"
+                    id="profileDesignation"
+                    name="designation"
+                    value="<%= profileUser.designation || '' %>"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Role</label>
+                  <input
+                    type="text"
+                    value="<%= profileUser.role %>"
+                    disabled
+                    style="background-color: #f3f4f6; cursor: not-allowed"
+                  />
+                  <small style="color: #6b7280; font-size: 12px"
+                    >Role cannot be changed</small
+                  >
+                </div>
+
+                <div class="form-group">
+                  <label>Manager</label>
+                  <input
+                    type="text"
+                    value="<%= profileUser.manager_name || 'No Manager Assigned' %>"
+                    disabled
+                    style="background-color: #f3f4f6; cursor: not-allowed"
+                  />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  Update Profile
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Leave Balance Section -->
+        <div class="profile-section">
+          <h3>Leave Balance</h3>
+          <div class="leave-balance-grid">
+            <% if (leaveBalances && leaveBalances.length > 0) { %> <%
+            leaveBalances.forEach(balance => { %>
+            <div class="balance-card">
+              <h4><%= balance.type_name %></h4>
+              <div class="balance-details">
+                <div class="balance-item">
+                  <span class="balance-label">Total:</span>
+                  <span class="balance-value"
+                    ><%= balance.total_leaves %> days</span
+                  >
+                </div>
+                <div class="balance-item">
+                  <span class="balance-label">Used:</span>
+                  <span class="balance-value"
+                    ><%= balance.used_leaves %> days</span
+                  >
+                </div>
+                <div class="balance-item">
+                  <span class="balance-label">Remaining:</span>
+                  <span class="balance-value balance-remaining"
+                    ><%= balance.remaining_leaves %> days</span
+                  >
+                </div>
+              </div>
+            </div>
+            <% }); %> <% } else { %>
+            <p class="empty-state">No leave balance information available</p>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="profile-section">
+          <h3>Change Password</h3>
+          <div class="profile-card">
+            <form
+              id="passwordForm"
+              onsubmit="handleManagerChangePassword(event)"
+            >
+              <div class="form-group">
+                <label for="currentPassword"
+                  >Current Password <span style="color: red">*</span></label
+                >
+                <input
+                  type="password"
+                  id="currentPassword"
+                  name="currentPassword"
+                  required
+                />
+                <span class="error-message" id="currentPasswordError"></span>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newPassword"
+                    >New Password <span style="color: red">*</span></label
+                  >
+                  <input
+                    type="password"
+                    id="newPassword"
+                    name="newPassword"
+                    required
+                  />
+                  <small style="color: #6b7280; font-size: 12px"
+                    >Minimum 6 characters</small
+                  >
+                  <span class="error-message" id="newPasswordError"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="confirmPassword"
+                    >Confirm New Password
+                    <span style="color: red">*</span></label
+                  >
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    required
+                  />
+                  <span class="error-message" id="confirmPasswordError"></span>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  Change Password
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/profile.js"></script>
+  </body>
+</html>
