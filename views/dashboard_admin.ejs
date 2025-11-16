@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Admin Dashboard</h2>
+          <p class="page-subtitle">
+            Manage employees, leave types, and view all requests.
+          </p>
+        </div>
+
+        <!-- Admin Stats -->
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-icon">👥</div>
+            <div class="card-content">
+              <h3>Total Employees</h3>
+              <p class="card-value"><%= totalEmployees || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">📋</div>
+            <div class="card-content">
+              <h3>Leave Types</h3>
+              <p class="card-value"><%= leaveTypes || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">⏳</div>
+            <div class="card-content">
+              <h3>Pending Requests</h3>
+              <p class="card-value"><%= pendingRequests || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">✓</div>
+            <div class="card-content">
+              <h3>Approved This Month</h3>
+              <p class="card-value"><%= approvedThisMonth || 0 %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="admin-actions">
+          <h3>Management Tools</h3>
+          <div class="actions-grid">
+            <button class="action-btn" onclick="openAddEmployeeModal()">
+              <span class="action-icon">➕</span>
+              <span>Add New Employee</span>
+            </button>
+            <button class="action-btn" onclick="openManageEmployeesModal()">
+              <span class="action-icon">✍️</span>
+              <span>Manage Employee</span>
+            </button>
+            <button class="action-btn" onclick="openManageLeaveTypesModal()">
+              <span class="action-icon">⚙️</span>
+              <span>Manage Leave Types</span>
+            </button>
+            <button class="action-btn" onclick="downloadReports()">
+              <span class="action-icon">📥</span>
+              <span>Download Reports</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Manager Leave Requests -->
+        <div class="all-requests-section">
+          <h3>Manager Leave Requests</h3>
+          <p style="color: #6b7280; font-size: 14px; margin-bottom: 16px">
+            ℹ️ As HR, you can approve/reject leave requests from
+            <strong>Managers only</strong>.
+          </p>
+
+          <% if (allRequests && allRequests.length > 0) { %>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Manager Name</th>
+                  <th>Role</th>
+                  <th>Leave Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Status</th>
+                  <th>Submitted On</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% allRequests.forEach(request => { %>
+                <tr>
+                  <td><strong><%= request.employeeName %></strong></td>
+                  <td>
+                    <span
+                      class="status-badge"
+                      style="background-color: #dbeafe; color: #1e40af"
+                    >
+                      👤 <%= request.employeeRole %>
+                    </span>
+                  </td>
+                  <td><%= request.type %></td>
+                  <td>
+                    <%= new Date(request.fromDate).toLocaleDateString() %>
+                  </td>
+                  <td><%= new Date(request.toDate).toLocaleDateString() %></td>
+                  <td>
+                    <span
+                      class="status-badge status-<%= request.status.toLowerCase() %>"
+                    >
+                      <%= request.status %>
+                    </span>
+                  </td>
+                  <td>
+                    <%= new Date(request.submittedOn).toLocaleDateString() %>
+                  </td>
+                  <td>
+                    <% if (request.status === 'pending') { %>
+                    <button
+                      class="btn btn-sm btn-success"
+                      onclick="updateLeaveStatus('<%= request.id %>', 'approved')"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      onclick="updateLeaveStatus('<%= request.id %>', 'rejected')"
+                    >
+                      Reject
+                    </button>
+                    <% } else { %>
+                    <span style="color: #6b7280; font-size: 12px">—</span>
+                    <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <div class="empty-state-container">
+            <p class="empty-state">📋 No manager leave requests found</p>
+            <small style="color: #6b7280"
+              >They will appear here once submitted.</small
+            >
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add New Employee</h3>
+          <button class="modal-close" onclick="closeAddEmployeeModal()">
+            &times;
+          </button>
+        </div>
+
+        <form class="modal-form" onsubmit="handleAddEmployee(event)">
+          <div class="form-group">
+            <label>Full Name <span style="color: red">*</span></label>
+            <input
+              type="text"
+              id="empName"
+              name="name"
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Email Address <span style="color: red">*</span></label>
+            <input
+              type="email"
+              id="empEmail"
+              name="email"
+              placeholder="employee@company.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Password <span style="color: red">*</span></label>
+            <input
+              type="password"
+              id="empPassword"
+              name="password"
+              placeholder="Temporary password"
+              required
+            />
+            <small style="color: #6b7280; font-size: 12px"
+              >Employee can change this later</small
+            >
+          </div>
+
+          <div class="form-group">
+            <label>Role <span style="color: red">*</span></label>
+            <select id="empRole" name="role" required>
+              <option value="">Select Role</option>
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="hr">HR</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Gender <span style="color: red">*</span></label>
+            <select id="empGender" name="gender" required>
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Department</label>
+            <input
+              type="text"
+              id="empDepartment"
+              name="department"
+              placeholder="e.g., IT, HR, Marketing"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Designation</label>
+            <input
+              type="text"
+              id="empDesignation"
+              name="designation"
+              placeholder="e.g., Engineer, Lead"
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Seniority Level <span style="color: red">*</span></label>
+            <select id="empSeniority" name="seniority" required>
+              <option value="">Select Level</option>
+              <option value="junior">Junior (0-2 years)</option>
+              <option value="mid">Mid-Level (2-5 years)</option>
+              <option value="senior">Senior (5-10 years)</option>
+              <option value="lead">Lead (10+ years)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Manager (Optional)</label>
+            <select id="empManagerId" name="manager_id">
+              <option value="">No Manager</option>
+              <% if (managers && managers.length > 0) { %> <%
+              managers.forEach(manager => { %>
+              <option value="<%= manager.id %>">
+                <%= manager.name %><%= manager.department ? ' - ' +
+                manager.department : '' %>
+              </option>
+              <% }); %> <% } %>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeAddEmployeeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Add Employee</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>
