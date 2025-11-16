@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manager Dashboard - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Manager Dashboard</h2>
+          <p class="page-subtitle">
+            Manage your team's leave requests and your own leaves.
+          </p>
+        </div>
+
+        <!-- Leave Summary Cards -->
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-icon total-leaves">📋</div>
+            <div class="card-content">
+              <h3>Total Leaves Applied</h3>
+              <p class="card-value"><%= totalLeavesApplied || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon pending-leaves">⏳</div>
+            <div class="card-content">
+              <h3>Pending Leaves</h3>
+              <p class="card-value"><%= pendingLeaves || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon remaining-leaves">✓</div>
+            <div class="card-content">
+              <h3>Remaining Balance</h3>
+              <p class="card-value"><%= remainingBalance || 20 %> days</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon team-requests">👥</div>
+            <div class="card-content">
+              <h3>Team Requests Pending</h3>
+              <p class="card-value"><%= teamPendingRequests || 0 %></p>
+            </div>
+          </div>
+        </div>
+        <script>
+          // Make role available in JS
+          const currentUserRole = "<%= role %>"; // 'employee' or 'manager'
+        </script>
+
+        <!-- Quick Actions -->
+        <div class="actions-section">
+          <h3>Quick Actions</h3>
+          <div class="actions-grid">
+            <a href="/manager/apply-leave" class="action-btn">
+              <span class="action-icon">➕</span>
+              <span>Apply for Leave</span>
+            </a>
+            <a href="/manager/view-leaves" class="action-btn">
+              <span class="action-icon">📊</span>
+              <span>View My Leaves</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Team Leave Requests -->
+        <div class="team-requests-section">
+          <h3>Team Leave Requests</h3>
+          <% if (teamRequests && teamRequests.length > 0) { %>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employee Name</th>
+                  <th>Leave Type</th>
+                  <th>From Date</th>
+                  <th>To Date</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% teamRequests.forEach(request => { %>
+                <tr>
+                  <td><%= request.employeeName %></td>
+                  <td><%= request.type %></td>
+                  <td>
+                    <%= new Date(request.fromDate).toLocaleDateString() %>
+                  </td>
+                  <td><%= new Date(request.toDate).toLocaleDateString() %></td>
+                  <td><%= request.reason %></td>
+                  <td>
+                    <span
+                      class="status-badge status-<%= request.status.toLowerCase() %>"
+                    >
+                      <%= request.status %>
+                    </span>
+                  </td>
+                  <td>
+                    <% if (request.status === 'pending') { %>
+                    <button
+                      class="btn btn-sm btn-success"
+                      onclick="approveLeave('<%= request.id %>', 'approved')"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      onclick="rejectLeave('<%= request.id %>', 'rejected')"
+                    >
+                      Reject
+                    </button>
+                    <% } else { %>
+                    <span style="color: #6b7280; font-size: 12px">—</span>
+                    <% } %>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <p class="empty-state">No pending team leave requests</p>
+          <% } %>
+        </div>
+      </div>
+    </main>
+    <script src="/js/script.js"></script>
+  </body>
+</html>
