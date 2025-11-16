@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Dashboard - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Dashboard</h2>
+          <p class="page-subtitle">Welcome back! Here's your leave summary.</p>
+        </div>
+
+        <!-- Leave Summary Cards -->
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-icon total-leaves">📋</div>
+            <div class="card-content">
+              <h3>Total Leaves Applied</h3>
+              <p class="card-value"><%= totalLeavesApplied || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon pending-leaves">⏳</div>
+            <div class="card-content">
+              <h3>Pending Leaves</h3>
+              <p class="card-value"><%= pendingLeaves || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon remaining-leaves">✓</div>
+            <div class="card-content">
+              <h3>Remaining Balance</h3>
+              <p class="card-value"><%= remainingBalance || 20 %> days</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="actions-section">
+          <h3>Quick Actions</h3>
+          <div class="actions-grid">
+            <a href="/employee/apply-leave" class="action-btn">
+              <span class="action-icon">➕</span>
+              <span>Apply for Leave</span>
+            </a>
+            <a href="/employee/view-leaves" class="action-btn">
+              <span class="action-icon">📊</span>
+              <span>View My Leave History</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Recent Leaves -->
+        <div class="recent-section">
+          <h3>Recent Leave Requests</h3>
+          <% if (recentLeaves && recentLeaves.length > 0) { %>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Leave Type</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% recentLeaves.forEach(leave => { %>
+              <tr>
+                <td><%= leave.type %></td>
+                <td><%= new Date(leave.fromDate).toLocaleDateString() %></td>
+                <td><%= new Date(leave.toDate).toLocaleDateString() %></td>
+                <td>
+                  <span
+                    class="status-badge status-<%= leave.status.toLowerCase() %>"
+                  >
+                    <%= leave.status %>
+                  </span>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+          <% } else { %>
+          <p class="empty-state">No recent leave requests</p>
+          <% } %>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>
