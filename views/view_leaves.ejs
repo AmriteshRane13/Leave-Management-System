@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Leave History - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Leave History</h2>
+          <p class="page-subtitle">
+            View all your leave requests and their status
+          </p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <div class="filter-group">
+            <label for="statusFilter">Filter by Status:</label>
+            <select id="statusFilter" onchange="filterLeaves()">
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Leave History Table -->
+        <% if (leaves && leaves.length > 0) { %>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Leave Type</th>
+                <th>From Date</th>
+                <th>To Date</th>
+                <th>Days</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Applied On</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% leaves.forEach(leave => { %>
+              <tr>
+                <td><strong><%= leave.type %></strong></td>
+                <td><%= new Date(leave.fromDate).toLocaleDateString() %></td>
+                <td><%= new Date(leave.toDate).toLocaleDateString() %></td>
+                <td>
+                  <%= Math.round( (new Date(leave.toDate) - new
+                  Date(leave.fromDate)) / (1000 * 60 * 60 * 24) ) + 1 %>
+                </td>
+
+                <td><%= leave.reason %></td>
+                <td>
+                  <span
+                    class="status-badge status-<%= leave.status.toLowerCase() %>"
+                  >
+                    <%= leave.status %>
+                  </span>
+                </td>
+                <td><%= new Date(leave.appliedOn).toLocaleDateString() %></td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div class="empty-state-container">
+          <p class="empty-state">No leave requests found</p>
+          <a href="/employee/apply-leave" class="btn btn-primary"
+            >Apply for Leave</a
+          >
+        </div>
+        <% } %>
+      </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+  </body>
+</html>
