@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Team - Leave Management System</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <%- include('partials/header') %> <%- include('partials/navbar') %>
+
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>My Team</h2>
+          <p class="page-subtitle">
+            View and manage your team members and their leave status
+          </p>
+        </div>
+
+        <!-- Team Stats -->
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-icon">👥</div>
+            <div class="card-content">
+              <h3>Total Team Members</h3>
+              <p class="card-value"><%= teamMembers.length || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">🏖️</div>
+            <div class="card-content">
+              <h3>On Leave Today</h3>
+              <p class="card-value"><%= onLeaveToday || 0 %></p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-icon">⏳</div>
+            <div class="card-content">
+              <h3>Pending Requests</h3>
+              <p class="card-value"><%= pendingRequests || 0 %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Team Members Table -->
+        <div class="team-section">
+          <h3>Team Members</h3>
+
+          <% if (teamMembers && teamMembers.length > 0) { %>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employee Name</th>
+                  <th>Email</th>
+                  <th>Department</th>
+                  <th>Designation</th>
+                  <th>Status</th>
+                  <th>Leave Details</th>
+                  <th>Leave Stats</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% teamMembers.forEach(member => { %>
+                <tr>
+                  <td><strong><%= member.name %></strong></td>
+                  <td><%= member.email %></td>
+                  <td><%= member.department || 'N/A' %></td>
+                  <td><%= member.designation || 'N/A' %></td>
+                  <td>
+                    <% if (member.current_leave) { %>
+                    <span
+                      class="status-badge"
+                      style="background-color: #fef3c7; color: #92400e"
+                    >
+                      🏖️ On Leave
+                    </span>
+                    <% } else if (member.upcoming_leave) { %>
+                    <span
+                      class="status-badge"
+                      style="background-color: #fef9c3; color: #78350f"
+                    >
+                      ⏱️ Upcoming Leave
+                    </span>
+                    <% } else { %>
+                    <span
+                      class="status-badge"
+                      style="background-color: #d1fae5; color: #065f46"
+                    >
+                      ✓ Available
+                    </span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (member.current_leave) { %>
+                    <div class="leave-info">
+                      <strong><%= member.current_leave.type %></strong><br />
+                      <small style="color: #6b7280">
+                        <%= new
+                        Date(member.current_leave.start_date).toLocaleDateString()
+                        %> - <%= new
+                        Date(member.current_leave.end_date).toLocaleDateString()
+                        %> </small
+                      ><br />
+                      <small style="color: #6b7280; font-style: italic">
+                        Reason: <%= member.current_leave.reason || 'N/A' %>
+                      </small>
+                    </div>
+                    <% } else if (member.upcoming_leave) { %>
+                    <div class="leave-info">
+                      <span style="color: #f59e0b">⏱️ Upcoming Leave</span
+                      ><br />
+                      <small style="color: #6b7280">
+                        <%= member.upcoming_leave.type %><br />
+                        <%= new
+                        Date(member.upcoming_leave.start_date).toLocaleDateString()
+                        %> - <%= new
+                        Date(member.upcoming_leave.end_date).toLocaleDateString()
+                        %>
+                      </small>
+                    </div>
+                    <% } else { %>
+                    <span style="color: #6b7280">No active leave</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="stats-info">
+                      <small>
+                        <strong>Total:</strong> <%= member.total_leaves || 0
+                        %><br />
+                        <strong>Approved:</strong> <%= member.approved_leaves ||
+                        0 %><br />
+                        <strong>Pending:</strong> <%= member.pending_leaves || 0
+                        %>
+                      </small>
+                      <br />
+                      <button
+                        class="btn btn-sm btn-primary"
+                        onclick="openTeamReportsModal('<%= member.id %>')"
+                        style="margin-top: 8px; font-size: 12px"
+                      >
+                        📊 View Reports
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <div class="empty-state-container">
+            <p class="empty-state">No team members assigned to you</p>
+          </div>
+          <% } %>
+        </div>
+
+        <!-- Current Leave Applications -->
+        <div class="team-section" style="margin-top: 30px">
+          <h3>Current Leave Applications</h3>
+
+          <% if (currentLeaves && currentLeaves.length > 0) { %>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Leave Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Days</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% currentLeaves.forEach(leave => { %>
+                <tr>
+                  <td><strong><%= leave.employee_name %></strong></td>
+                  <td><%= leave.leave_type %></td>
+                  <td>
+                    <%= new Date(leave.start_date).toLocaleDateString() %>
+                  </td>
+                  <td><%= new Date(leave.end_date).toLocaleDateString() %></td>
+                  <td><%= leave.days %> days</td>
+                  <td><%= leave.reason %></td>
+                  <td>
+                    <span
+                      class="status-badge status-<%= leave.status.toLowerCase() %>"
+                    >
+                      <%= leave.status %>
+                    </span>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% } else { %>
+          <p class="empty-state">No current leave applications</p>
+          <% } %>
+        </div>
+      </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/script.js"></script>
+  </body>
+</html>
